@@ -2,6 +2,12 @@
 
 Shows the assembly for C, C++ and Rust code in a floating window.
 
+
+
+https://github.com/user-attachments/assets/737170fb-f232-40c9-929a-52081067274d
+
+
+
 ## Install
 
 lazy.nvim:
