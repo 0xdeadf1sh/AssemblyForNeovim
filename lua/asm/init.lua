@@ -59,6 +59,20 @@ local function strip(args)
 	return out
 end
 
+local c23
+
+-- GCC 13 rejects -std=c23 but accepts -std=c2x, the name it had before C23 was final.
+local function c_std(cwd)
+	if c23 == nil then
+		local ok, res = pcall(function()
+			local probe = { "cc", "-std=c23", "-fsyntax-only", "-x", "c", "-" }
+			return vim.system(probe, { cwd = cwd, stdin = "" }):wait()
+		end)
+		c23 = ok and res.code == 0
+	end
+	return c23 and "-std=c23" or "-std=c2x"
+end
+
 local function cc_base(path, ft)
 	local e = db_entry(path)
 	if e then
@@ -66,7 +80,7 @@ local function cc_base(path, ft)
 	end
 	return {
 		ft == "cpp" and "c++" or "cc",
-		ft == "cpp" and "-std=c++23" or "-std=c23",
+		ft == "cpp" and "-std=c++23" or c_std(vim.fs.dirname(path)),
 		path,
 	}, vim.fs.dirname(path)
 end
