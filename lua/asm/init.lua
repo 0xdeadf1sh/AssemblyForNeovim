@@ -383,10 +383,17 @@ function M.show(l1, l2)
 end
 
 local function enclosing_fn()
-	local ok, node = pcall(vim.treesitter.get_node)
-	if not ok or not node then
+	local ok, parser = pcall(vim.treesitter.get_parser)
+	if not ok or not parser then
+		local ft = vim.bo.filetype
+		if ft == "c" or ft == "cpp" or ft == "rust" then
+			warn("no tree-sitter parser for '" .. ft .. "', using the cursor line")
+		end
 		return nil
 	end
+	-- get_node() only reads parsed trees, and without tree-sitter highlighting nothing has parsed the buffer.
+	parser:parse()
+	local node = vim.treesitter.get_node()
 	while node do
 		local t = node:type()
 		if t:match("function") or t:match("method") then
