@@ -82,7 +82,8 @@ local function cc_base(path, ft)
 		ft == "cpp" and "c++" or "cc",
 		ft == "cpp" and "-std=c++23" or c_std(vim.fs.dirname(path)),
 		path,
-	}, vim.fs.dirname(path)
+	},
+		vim.fs.dirname(path)
 end
 
 local x86 = {}
@@ -397,13 +398,16 @@ local function enclosing_fn()
 	end
 end
 
-function M.setup()
+function M.setup(opts)
+	opts = opts or {}
+	local key = opts.key or "<leader>a"
+
 	vim.api.nvim_create_user_command("Asm", function(o)
 		M.show(o.line1, o.line2)
 	end, { range = true, desc = "Assembly for the selected lines" })
 
-	vim.keymap.set("x", "<leader>a", ":Asm<CR>", { silent = true, desc = "[A]ssembly for selection" })
-	vim.keymap.set("n", "<leader>a", function()
+	vim.keymap.set("x", key, ":Asm<CR>", { silent = true, desc = "[A]ssembly for selection" })
+	vim.keymap.set("n", key, function()
 		local l1, l2 = enclosing_fn()
 		M.show(l1 or vim.fn.line("."), l2 or vim.fn.line("."))
 	end, { desc = "[A]ssembly for the function under the cursor" })
